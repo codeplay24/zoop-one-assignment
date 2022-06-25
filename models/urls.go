@@ -3,9 +3,10 @@ package models
 import "time"
 
 type Endpoint struct {
-	Url               string
-	NumberOfHits      int
-	LastThreeStatuses []Status
+	Url              string
+	Blocked          bool
+	IsReadyToServe   bool
+	PreviousStatuses []Status
 }
 
 type Status struct {
