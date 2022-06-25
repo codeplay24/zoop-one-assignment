@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var EndpointList []models.Endpoint
-var HealthyEndpoints []models.Endpoint
+var EndpointList []*models.Endpoint
+var HealthyEndpoints []*models.Endpoint
 
 func GetData(c *gin.Context) {
 	// do the robinson algo on healthy end points
@@ -67,10 +67,20 @@ func RegisterEndPoints(c *gin.Context) {
 		fmt.Println("failed while getting json data")
 	}
 
-	EndpointList = append(EndpointList, models.Endpoint{
+	ep := models.Endpoint{
 		Url: jsonResp.Url,
-	})
-	go services.CheckHealthFirstTime(&EndpointList, &HealthyEndpoints)
+	}
+
+	EndpointList = append(EndpointList, &ep)
+	go services.CheckHealthFirstTime(&EndpointList, &ep)
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+func Getval(c *gin.Context) {
+	for i := range EndpointList {
+		fmt.Println(EndpointList[i].IsReadyToServe, EndpointList[i].Url)
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
 }

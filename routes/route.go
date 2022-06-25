@@ -10,5 +10,6 @@ func SetUpRouter() *gin.Engine {
 	router := gin.Default()
 	router.POST("/urls/register", controllers.RegisterEndPoints)
 	router.GET("/proxy", controllers.GetData)
+	router.GET("/val", controllers.Getval)
 	return router
 }

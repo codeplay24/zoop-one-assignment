@@ -8,7 +8,7 @@ import (
 )
 
 //this function will filter out unhealty endpoints
-func FilterHealtyEndpoints(urlsPtr *[]models.Endpoint, healthyEndpoints *[]models.Endpoint) {
+func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*models.Endpoint) {
 	for _, v := range *urlsPtr {
 		prevStatuses := v.PreviousStatuses
 		successfulStatusCount := 0
@@ -53,7 +53,7 @@ func FilterHealtyEndpoints(urlsPtr *[]models.Endpoint, healthyEndpoints *[]model
 }
 
 // this function checks healt when ever it has time
-func GetHealth(urlsPtr *[]models.Endpoint, healtyEndpoints *[]models.Endpoint) {
+func GetHealth(urlsPtr *[]*models.Endpoint, healtyEndpoints *[]*models.Endpoint) {
 	for {
 		for i, v := range *urlsPtr {
 			if !v.IsReadyToServe {
@@ -74,35 +74,36 @@ func GetHealth(urlsPtr *[]models.Endpoint, healtyEndpoints *[]models.Endpoint) {
 			})
 		}
 		FilterHealtyEndpoints(urlsPtr, healtyEndpoints)
+		time.Sleep(1 * time.Second)
 	}
 }
 
 // this function checks health for the first time when registering the url
-func CheckHealthFirstTime(urlsPtr *[]models.Endpoint, healtyEndpoints *[]models.Endpoint) {
+func CheckHealthFirstTime(urlsPtr *[]*models.Endpoint, endpoint *models.Endpoint) {
 	t := time.Now()
 	for {
 		diffInSeconds := time.Since(t).Seconds()
 		if diffInSeconds >= 15 {
-			(*urlsPtr)[len(*urlsPtr)-1].IsReadyToServe = true
+			(*endpoint).IsReadyToServe = true
 			break
 		}
 
-		statusCode, err := MakeARequest((*urlsPtr)[len(*urlsPtr)-1].Url)
+		statusCode, err := MakeARequest((*endpoint).Url)
 		if err != nil {
-			*urlsPtr = (*urlsPtr)[0 : len(*urlsPtr)-1]
+			(*urlsPtr)[len(*urlsPtr)-1] = nil
 			break
 		}
 
-		fmt.Println(statusCode, (*urlsPtr)[len(*urlsPtr)-1].Url, "request sent from first time checking health")
-		fmt.Println()
+		//fmt.Println(statusCode, (*urlsPtr)[len(*urlsPtr)-1].Url, "request sent from first time checking health")
+		//fmt.Println()
 
-		(*urlsPtr)[len(*urlsPtr)-1].PreviousStatuses = append((*urlsPtr)[len(*urlsPtr)-1].PreviousStatuses, models.Status{
+		(*endpoint).PreviousStatuses = append((*endpoint).PreviousStatuses, models.Status{
 			Time:       time.Now(),
 			StatusCode: statusCode,
 		})
 
 	}
-	FilterHealtyEndpoints(urlsPtr, healtyEndpoints)
+	//FilterHealtyEndpoints(urlsPtr, healtyEndpoints)
 
 }
 
