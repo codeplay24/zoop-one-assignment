@@ -54,26 +54,27 @@ func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*mod
 
 // this function checks healt when ever it has time
 func GetHealth(urlsPtr *[]*models.Endpoint, healtyEndpoints *[]*models.Endpoint) {
+	flag := false
 	for {
 		for i, v := range *urlsPtr {
 			if !v.IsReadyToServe {
 				continue
 			}
+			flag = true
 			statusCode, err := MakeARequest(v.Url)
 			if err != nil {
 				*urlsPtr = (*urlsPtr)[0 : len(*urlsPtr)-1]
 				continue
 			}
 
-			fmt.Println(statusCode, v.Url, (*urlsPtr)[i].Blocked, "request sent from checking health periodically")
-			fmt.Println()
-
 			(*urlsPtr)[i].PreviousStatuses = append((*urlsPtr)[i].PreviousStatuses, models.Status{
 				Time:       time.Now(),
 				StatusCode: statusCode,
 			})
 		}
-		FilterHealtyEndpoints(urlsPtr, healtyEndpoints)
+		if flag {
+			FilterHealtyEndpoints(urlsPtr, healtyEndpoints)
+		}
 		time.Sleep(1 * time.Second)
 	}
 }

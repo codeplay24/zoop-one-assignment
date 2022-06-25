@@ -18,13 +18,14 @@ func GetData(c *gin.Context) {
 	// do the robinson algo on healthy end points
 	var respBody []byte
 	fmt.Println(len(HealthyEndpoints))
-	for i := 0; i < len(HealthyEndpoints); i++ {
-		if HealthyEndpoints[i].Blocked {
+	index := 0
+	for index = 0; index < len(HealthyEndpoints); index++ {
+		if HealthyEndpoints[index].Blocked {
 			continue
 		}
 		client := &http.Client{}
 
-		req, err := http.NewRequest(c.Request.Method, HealthyEndpoints[i].Url, c.Request.Body)
+		req, err := http.NewRequest(c.Request.Method, HealthyEndpoints[index].Url, c.Request.Body)
 		if err != nil {
 			fmt.Println("error")
 		}
@@ -45,11 +46,16 @@ func GetData(c *gin.Context) {
 		}
 
 		respBody = body
-		HealthyEndpoints[i].Blocked = true
+		fmt.Println("sending response from", (*HealthyEndpoints[index]).Url)
+		HealthyEndpoints[index].Blocked = true
 		//fmt.Println(v.Url, HealthyEndpoints[i].Blocked, "wtf boro")
 		break
 	}
-
+	if len(HealthyEndpoints)-1 == index {
+		for i := range HealthyEndpoints {
+			(*HealthyEndpoints[i]).Blocked = false
+		}
+	}
 	//payload := strings.NewReader(string(bodyData))
 	c.JSON(http.StatusOK, respBody)
 
