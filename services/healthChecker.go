@@ -7,7 +7,7 @@ import (
 	"zoop/one/models"
 )
 
-//this function will filter out unhealty endpoints
+//this function will checks the last 3 200 statuses and their time and will filter out any endpoint
 func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*models.Endpoint) {
 	for _, v := range *urlsPtr {
 		prevStatuses := v.PreviousStatuses
@@ -52,15 +52,20 @@ func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*mod
 	}
 }
 
-// this function checks healt when ever it has time
+// this function checks health of the EndpointList endpoints when there is no work going on
+// and puts the statuses in peviousStatuses slice
 func GetHealth(urlsPtr *[]*models.Endpoint, healtyEndpoints *[]*models.Endpoint) {
 	flag := false
+
+	//and endless loop with a time.Sleep given so that other go routines gets a chance to execute
 	for {
 		for i, v := range *urlsPtr {
 			if !v.IsReadyToServe {
 				continue
 			}
 			flag = true
+
+			// this block will run if the endpoint does not exists
 			statusCode, err := MakeARequest(v.Url)
 			if err != nil {
 				*urlsPtr = (*urlsPtr)[0 : len(*urlsPtr)-1]
@@ -80,23 +85,25 @@ func GetHealth(urlsPtr *[]*models.Endpoint, healtyEndpoints *[]*models.Endpoint)
 }
 
 // this function checks health for the first time when registering the url
+// and it holds a endpoint for 15 seconds to till that endpoint can be serveable.
 func CheckHealthFirstTime(urlsPtr *[]*models.Endpoint, endpoint *models.Endpoint) {
 	t := time.Now()
 	for {
 		diffInSeconds := time.Since(t).Seconds()
+
+		//15 second after registering the endpoint this block will run
 		if diffInSeconds >= 15 {
 			(*endpoint).IsReadyToServe = true
 			break
 		}
 
 		statusCode, err := MakeARequest((*endpoint).Url)
+
+		// this block will run if the endpoint does not exists
 		if err != nil {
 			(*urlsPtr)[len(*urlsPtr)-1] = nil
 			break
 		}
-
-		//fmt.Println(statusCode, (*urlsPtr)[len(*urlsPtr)-1].Url, "request sent from first time checking health")
-		//fmt.Println()
 
 		(*endpoint).PreviousStatuses = append((*endpoint).PreviousStatuses, models.Status{
 			Time:       time.Now(),
@@ -104,7 +111,6 @@ func CheckHealthFirstTime(urlsPtr *[]*models.Endpoint, endpoint *models.Endpoint
 		})
 
 	}
-	//FilterHealtyEndpoints(urlsPtr, healtyEndpoints)
 
 }
 

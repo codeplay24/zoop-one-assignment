@@ -11,14 +11,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//EndpointList list downs every endpoints that we register through the /urls/register route
 var EndpointList []*models.Endpoint
+
+//HealthyEndpoints puts endpoints which are healthy from the EndpointList slice
 var HealthyEndpoints []*models.Endpoint
 
+// this fuction is responosible for forwarding the requst to the endpoint that receives priorty with
+//round robin algorithm
 func GetData(c *gin.Context) {
-	// do the robinson algo on healthy end points
 	var respBody []byte
-	fmt.Println(len(HealthyEndpoints))
 	index := 0
+
+	//we will loop through the healthy endpoints and send request to a end point with
+	//round robin algorithm
+
 	for index = 0; index < len(HealthyEndpoints); index++ {
 		if HealthyEndpoints[index].Blocked {
 			continue
@@ -34,21 +41,20 @@ func GetData(c *gin.Context) {
 
 		res, err := client.Do(req)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Failed while making a request to the", HealthyEndpoints[index].Url)
 			continue
 		}
 		defer res.Body.Close()
 
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Failed while reading body of the response of", HealthyEndpoints[index].Url)
 			continue
 		}
 
 		respBody = body
-		fmt.Println("sending response from", (*HealthyEndpoints[index]).Url)
+		fmt.Println("sending response from", HealthyEndpoints[index].Url)
 		HealthyEndpoints[index].Blocked = true
-		//fmt.Println(v.Url, HealthyEndpoints[i].Blocked, "wtf boro")
 		break
 	}
 	if len(HealthyEndpoints)-1 == index {
@@ -57,10 +63,16 @@ func GetData(c *gin.Context) {
 		}
 	}
 	//payload := strings.NewReader(string(bodyData))
-	c.JSON(http.StatusOK, respBody)
+	if respBody == nil {
+		c.JSON(503, gin.H{})
+		return
+	}
+	c.JSON(200, string(respBody))
 
 }
 
+//RegisterEndPoints registers endpoint. this fuction takes a endpoint from the request body and
+//puts it in the EndpointList slice
 func RegisterEndPoints(c *gin.Context) {
 	jsonData, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
