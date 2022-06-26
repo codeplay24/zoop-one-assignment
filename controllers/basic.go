@@ -94,11 +94,3 @@ func RegisterEndPoints(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
-
-func Getval(c *gin.Context) {
-	for i := range EndpointList {
-		fmt.Println(EndpointList[i].IsReadyToServe, EndpointList[i].Url)
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
-
-}

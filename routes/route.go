@@ -16,6 +16,5 @@ func SetUpRouter() *gin.Engine {
 	router.PATCH("/proxy", controllers.GetData)
 	router.DELETE("/proxy", controllers.GetData)
 
-	router.GET("/val", controllers.Getval)
 	return router
 }
