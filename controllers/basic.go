@@ -76,6 +76,8 @@ func GetData(c *gin.Context) {
 func RegisterEndPoints(c *gin.Context) {
 	jsonData, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
+		fmt.Println("failed while reading data from json body")
+		c.JSON(500, gin.H{"status": "failed"})
 		return
 	}
 
@@ -83,6 +85,8 @@ func RegisterEndPoints(c *gin.Context) {
 	err = json.Unmarshal([]byte(jsonData), &jsonResp)
 	if err != nil {
 		fmt.Println("failed while getting json data")
+		c.JSON(500, gin.H{"status": "failed"})
+		return
 	}
 
 	ep := models.Endpoint{

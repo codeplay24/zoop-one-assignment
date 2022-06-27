@@ -8,6 +8,7 @@ import (
 )
 
 //this function will checks the last 3 200 statuses and their time and will filter out any endpoint
+// that does not serve 3 200 statuses code in the last 15 seconds
 func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*models.Endpoint) {
 	for _, v := range *urlsPtr {
 		prevStatuses := v.PreviousStatuses
@@ -23,8 +24,8 @@ func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*mod
 
 			if successfulStatusCount == 3 {
 				diffInSeconds := time.Since(timeOfTheStatus).Seconds()
+
 				if diffInSeconds < 15 {
-					// if the request alredy exits in the healthy end point
 					flag := false
 					for _, Ep := range *healthyEndpoints {
 						if v.Url == Ep.Url {
@@ -44,9 +45,9 @@ func FilterHealtyEndpoints(urlsPtr *[]*models.Endpoint, healthyEndpoints *[]*mod
 							break
 						}
 					}
-
 					break
 				}
+
 			}
 		}
 	}
