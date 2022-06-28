@@ -1,7 +1,7 @@
 # zoop-one-assignment
 
-install the dependancies with go get
-run the project with go run main.go
+install the dependancies with 'go get'  
+run the project with 'go run main.go'
 
 
 This is a back-end application that takes a request and serves that request to a registerd endpoint in Round Robin fashion. 
