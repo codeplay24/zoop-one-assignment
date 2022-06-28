@@ -1,5 +1,9 @@
 # zoop-one-assignment
 
+install the dependancies with go get
+run the project with go run main.go
+
+
 This is a back-end application that takes a request and serves that request to a registerd endpoint in Round Robin fashion. 
 
 /urls/register - is a endpoint that receives a post call and register's a endpoint. you have to send a json structure in request body. 
@@ -15,7 +19,7 @@ after registeration of a url there is hold time, which is 15 seconds. In these 1
 
  /proxy - this end point does not serve any specific type of http request. It can serve GET, POST, PUT, PATCH, DELETE. This end point will take the request and and send a request to any of the healthy end point in Round Robin fashion. this router forwards everything to the proxy endpoint. and responds with the respond it gets back from the endpoint.
 
-name - Rajdeep Sarkar
-email - rajdeepsarkar1d@gmail.com
-phone - 8918771634
+name - Rajdeep Sarkar  
+email - rajdeepsarkar1d@gmail.com  
+phone - 8918771634  
   
