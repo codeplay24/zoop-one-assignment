@@ -1,5 +1,9 @@
 # zoop-one-assignment
 
+install the dependancies with go get
+run the project with go run main.go
+
+
 This is a back-end application that takes a request and serves that request to a registerd endpoint in Round Robin fashion. 
 
 /urls/register - is a endpoint that receives a post call and register's a endpoint. you have to send a json structure in request body. 
